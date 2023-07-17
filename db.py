@@ -1,83 +1,87 @@
 import sqlite3
 
-def create_table(): #eğer yeni table açmak istiyorsanız _name_ kısmına create_table() yazmalısınız.
-
-  connection = sqlite3.connect('database.sqlite')
-  cursor = connection.cursor()
-  cursor.execute('CREATE TABLE users9 (id INT ,username TEXT, password TEXT)')
-  connection.commit()
-  connection.close()
-
-def register_user(id_value,username, password): #veri ekler
-
-  connection = sqlite3.connect('database.sqlite')
-  cursor = connection.cursor()
-  try:
-    cursor.execute('INSERT INTO users9 (id, username, password) VALUES (?, ?, ?)', (id_value, username, password))
+def create_table():
+    connection = sqlite3.connect('database.sqlite')
+    cursor = connection.cursor()
+    try:
+        cursor.execute('CREATE TABLE IF NOT EXISTS user_s (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)')
+        print("Tablo başarıyla oluşturuldu.")
+    except Exception as e:
+        print(f"Hataaa !!{str(e)}")
     connection.commit()
-  except Exception as e:
-    print(f"Hata !!: {str(e)}")
+    connection.close()
 
-  connection.close()
+def register_user(username, password):
+    connection = sqlite3.connect('database.sqlite')
+    cursor = connection.cursor()
+    try:
+        cursor.execute('INSERT INTO user_s (username, password) VALUES (?, ?)', (username, password))
+        connection.commit()
+        user_id = cursor.lastrowid
+        print(f"Kullanıcı başarıyla kaydedildi. ID: {user_id}")
+    except Exception as e:
+        print(f"Hata !!: {str(e)}")
+    connection.close()
 
-def show(): #verileri gösterir
-  connection = sqlite3.connect('database.sqlite')
-  cursor=connection.cursor()
-  cursor.execute('SELECT * FROM users9')
-  rows = cursor.fetchall()
-  for row in rows:
-    print("----------------")
-    print(row)
-    print("----------------")
+def show():
+    connection = sqlite3.connect('database.sqlite')
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM user_s')
+    rows = cursor.fetchall()
+    for row in rows:
+        print("----------------")
+        print(row)
+        print("----------------")
+    connection.close()
 
-  connection.commit()
-  connection.close()
+def update(id_value, username):
+    connection = sqlite3.connect('database.sqlite')
+    cursor = connection.cursor()
+    try:
+        cursor.execute('UPDATE user_s SET username = ? WHERE id = ?', (username, id_value))
+        print("Başarıyla güncellendi.")
+        connection.commit()
+    except Exception as e:
+        print(f"Hata !!: {str(e)}")
+    connection.close()
 
-def update(id_value,username): #verileri günceller
-  connection = sqlite3.connect('database.sqlite')
-  cursor = connection.cursor()
-  try:
-    cursor.execute('UPDATE users9 SET id = ? WHERE username = ?', (id_value, username))
-    print("Başarıyla güncellendi.")
-    connection.commit()  # Commit the changes to the database
-  except Exception as e:
-    print(f"Hata !!: {str(e)}")
-
-def delete(id_value): #veriyi siler.
-  connection = sqlite3.connect('database.sqlite')
-  cursor = connection.cursor()
-  try:
-    cursor.execute('DELETE FROM users9 WHERE id = ?', (id_value,))
-    connection.commit()
-  except Exception as e:
-    print(f"Hata !!: {str(e)}")
-
-  connection.close()
-
-run = True
+def delete(id_value):
+    connection = sqlite3.connect('database.sqlite')
+    cursor = connection.cursor()
+    try:
+        cursor.execute('DELETE FROM user_s WHERE id = ?', (id_value,))
+        connection.commit()
+    except Exception as e:
+        print(f"Hata !!: {str(e)}")
+    connection.close()
 
 def main():
-  print("Ekleme:1, Silme:2, Güncelleme:3, Verileri Görmek için 4 yazınız.")
-  value = int(input("Yapacağınız işlemi seçiniz:"))
-  if value == 1:
-    id_value = int(input("Enter id : "))
-    username = input('Enter your username: ')
-    password = input('Enter your password: ')
-    register_user(id_value,username, password)
-    print("Başarıyla eklendi.")
-    show()
-  if value ==2:
-    id_value = input('Silinecek id: ')
-    delete(id_value)
-    show()
-  if value == 3:
-    id_value = input('Id : ')
-    username = input("Güncellenecek veriyi yaz< : ")
-    update(id_value,username)
-    show()
-  if value == 4:
-    show()
+    create_table()
+    print("Ekleme: 1, Silme: 2, Güncelleme: 3, Verileri Görmek için: 4")
+    value = int(input("Yapacağınız işlemi seçiniz: "))
+    
+    if value == 1:
+        username = input('Kullanıcı adı: ')
+        password = input('Şifre: ')
+        register_user(username, password)
+        show()
+    
+    elif value == 2:
+        show()
+        id_value = input('Silinecek ID: ')
+        delete(id_value)
+        show()
+    
+    elif value == 3:
+        id_value = input('Güncellenecek ID: ')
+        username = input("Yeni kullanıcı adı: ")
+        update(id_value, username)
+        show()
+    
+    elif value == 4:
+        show()
+
+run = True
 while run:
-  if __name__ == '__main__': 
-    main()
-  
+    if __name__ == '__main__':
+        main()
