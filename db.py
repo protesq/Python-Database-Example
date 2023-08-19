@@ -98,7 +98,7 @@ def main(): #her şey  bu kısımda başlar.
         username = input('Kullanıcı adı: ')
         password = input('Şifre: ')
         register_user(table_name,username, password)
-        show()
+        show(table_name)
     
     elif value == 2:
         table_show()
